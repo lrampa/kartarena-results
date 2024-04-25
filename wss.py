@@ -89,6 +89,7 @@ async def main():
                 data = json.loads(message)
                 if "reload" in data:
                     logging.debug("reload received")
+                    break
                 elif "results" in data:
                     await handle_message(data)
                 
