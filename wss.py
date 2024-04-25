@@ -1,8 +1,10 @@
 import asyncio
 import json
 import logging
+import csv
 from bs4 import BeautifulSoup
 import websockets
+import sys
 
 logging.basicConfig(
     filename="wss.log",
@@ -28,6 +30,7 @@ async def handle_message(data):
         #    if data["race_vehicle_id"] == 279623:
         # Parse the HTML content of "results" using BeautifulSoup
         soup = BeautifulSoup(data["results"], "html.parser")
+        csv_writer = csv.writer(sys.stdout)
 
         for row in soup.find_all("tr"):  # Loop through all rows (<tr>)
             # Extract data-race-vehicle-id
@@ -53,16 +56,29 @@ async def handle_message(data):
             laps = cells[3].text.strip() if len(cells) > 3 else None
             delta = cells[4].text.strip() if len(cells) > 4 else None
 
-            # Print or store the extracted data (modify as needed)
-            print(f"Vehicle ID: {race_vehicle_id}")
-            print(f"Position: {position}")
-            print(f"Name: {name}")
-            print(f"Kart: {kart}")
-            print(f"Best Time: {race_best}")
-            print(f"Last Lap: {last_lap}")
-            print(f"Laps: {laps}")
-            print(f"Delta: {delta}")
-            print("-" * 20)  # Separator between entries
+            csv_record = [
+                race_vehicle_id,
+                position,
+                name,
+                kart,
+                race_best,
+                last_lap,
+                laps,
+                delta,
+            ]
+            # Print data to stdout as csv record using csv_writer from csv module
+            csv_writer.writerow(csv_record)
+
+            # # Print or store the extracted data (modify as needed)
+            # print(f"Vehicle ID: {race_vehicle_id}")
+            # print(f"Position: {position}")
+            # print(f"Name: {name}")
+            # print(f"Kart: {kart}")
+            # print(f"Best Time: {race_best}")
+            # print(f"Last Lap: {last_lap}")
+            # print(f"Laps: {laps}")
+            # print(f"Delta: {delta}")
+            # print("-" * 20)  # Separator between entries
 
 async def main():
     logging.debug("main() starts")
