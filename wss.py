@@ -57,6 +57,7 @@ async def handle_message(data):
             # Keep only result of kart that just passed the end of lap
             if race_vehicle_id is not None:
                 if row_race_vehicle_id != race_vehicle_id:
+                    logging.debug(f"Skipping row {row_race_vehicle_id} != {race_vehicle_id}")
                     continue
 
             # Find position span
@@ -93,6 +94,7 @@ async def handle_message(data):
             ]
             # Print data to stdout as csv record using csv_writer from csv module
             csv_writer.writerow(csv_record)
+            sys.stdout.flush()
 
             # # Print or store the extracted data (modify as needed)
             # print(f"Vehicle ID: {race_vehicle_id}")
