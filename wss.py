@@ -5,6 +5,7 @@ import csv
 from bs4 import BeautifulSoup
 import websockets
 import sys
+import datetime
 
 logging.basicConfig(
     filename="wss.log",
@@ -25,12 +26,14 @@ class LoggerAdapter(logging.LoggerAdapter):
         return f"{websocket.id} {websocket.remote_address} {msg}", kwargs
 
 async def handle_message(data):
-    logging.debug("handle_message start")
+    logging.debug(f"handle_message start: {data}")
     if data["results"]:
+        # Generate current timestamp in ISO 8601 format, using local timezone
+        current_timestamp = datetime.datetime.now().astimezone().isoformat()
         #    if data["race_vehicle_id"] == 279623:
         # Parse the HTML content of "results" using BeautifulSoup
         soup = BeautifulSoup(data["results"], "html.parser")
-        csv_writer = csv.writer(sys.stdout)
+        csv_writer = csv.writer(sys.stdout, quoting=csv.QUOTE_ALL)
 
         for row in soup.find_all("tr"):  # Loop through all rows (<tr>)
             # Extract data-race-vehicle-id
@@ -57,6 +60,7 @@ async def handle_message(data):
             delta = cells[4].text.strip() if len(cells) > 4 else None
 
             csv_record = [
+                current_timestamp,
                 race_vehicle_id,
                 position,
                 name,
@@ -96,7 +100,7 @@ async def main():
         # user_agent_header="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     ) as websocket:
         logging.debug("wss connected")
-        await websocket.send('{"track_id":6, "screen_id":3}')
+        await websocket.send('{"track_id":1, "screen_id":3}')
         logging.debug("track_id sent")
         # await websocket.send("ping")  # Optional: Send a ping message
         async for message in websocket:
