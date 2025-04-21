@@ -27,6 +27,11 @@ class LoggerAdapter(logging.LoggerAdapter):
 
 async def handle_message(data):
     logging.debug(f"handle_message start: {data}")
+    if data["race_vehicle_id"]:
+        race_vehicle_id = data["race_vehicle_id"]
+    else:
+        race_vehicle_id = None
+
     if data["results"]:
         # Generate current timestamp in ISO 8601 format, using local timezone
         current_timestamp = datetime.datetime.now().astimezone().isoformat()
@@ -37,7 +42,12 @@ async def handle_message(data):
 
         for row in soup.find_all("tr"):  # Loop through all rows (<tr>)
             # Extract data-race-vehicle-id
-            race_vehicle_id = row.get("data-race-vehicle-id")
+            row_race_vehicle_id = row.get("data-race-vehicle-id")
+
+            # Keep only result of kart that just passed the end of lap
+            if race_vehicle_id is not None:
+                if row_race_vehicle_id != race_vehicle_id:
+                    continue
 
             # Find position span
             position_element = row.find(
@@ -61,7 +71,7 @@ async def handle_message(data):
 
             csv_record = [
                 current_timestamp,
-                race_vehicle_id,
+                row_race_vehicle_id,
                 position,
                 name,
                 kart,
