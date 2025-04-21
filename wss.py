@@ -32,6 +32,16 @@ async def handle_message(data):
     else:
         race_vehicle_id = None
 
+    # Store race start (unix timestamp, e.g. 1745238987937) in ISO 8601 format, using local timezone
+    race_started_at = None
+    if data["race"]:
+        if data["race"]["started_at"]:
+            race_started_at = data["race"]["started_at"]
+            # Convert to datetime object
+            race_started_at = datetime.datetime.fromtimestamp(
+                int(race_started_at) / 1000
+            ).astimezone().isoformat()
+
     if data["results"]:
         # Generate current timestamp in ISO 8601 format, using local timezone
         current_timestamp = datetime.datetime.now().astimezone().isoformat()
@@ -71,6 +81,7 @@ async def handle_message(data):
 
             csv_record = [
                 current_timestamp,
+                race_started_at,
                 row_race_vehicle_id,
                 position,
                 name,
