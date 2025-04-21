@@ -112,6 +112,8 @@ async def main():
                     break
                 elif "results" in data:
                     await handle_message(data)
+                else:
+                    logging.debug(f"Unknown message: {message}")
                 
             except json.JSONDecodeError:
                 logging.error(f"Error decoding JSON message: {message}")
