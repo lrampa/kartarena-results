@@ -28,7 +28,7 @@ class LoggerAdapter(logging.LoggerAdapter):
 async def handle_message(data):
     logging.debug(f"handle_message start: {data}")
     if data["race_vehicle_id"]:
-        race_vehicle_id = data["race_vehicle_id"]
+        race_vehicle_id = f"{data['race_vehicle_id']}"
     else:
         race_vehicle_id = None
 
